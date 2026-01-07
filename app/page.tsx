@@ -14,31 +14,31 @@ export default function BinanceFuturesPage() {
   const [limitPrice, setLimitPrice] = useState("");
 
   return (
-    <div className="flex h-screen w-full bg-white dark:bg-black text-black dark:text-white overflow-hidden flex-col">
+    <div className="flex min-h-screen lg:h-screen w-full bg-white dark:bg-black text-black dark:text-white lg:overflow-hidden flex-col">
       {/* Header / Ticker */}
-      <header className="h-10 border-b border-gray-200 dark:border-gray-800 flex items-center px-4 gap-6 text-xs bg-gray-50 dark:bg-gray-900 shrink-0">
+      <header className="h-10 border-b border-gray-200 dark:border-gray-800 flex items-center px-4 gap-6 text-xs bg-gray-50 dark:bg-gray-900 shrink-0 sticky top-0 z-50 lg:static">
         <div className="flex items-center gap-1.5 select-none">
           <span className="font-black text-xl tracking-tighter text-black dark:text-white font-sans">AIZU</span>
           <span className="font-bold text-[10px] uppercase tracking-[0.2em] text-yellow-600 dark:text-yellow-500 bg-yellow-100 dark:bg-yellow-500/10 px-1.5 py-0.5 rounded-sm">FUTURES</span>
         </div>
-        <div className="flex gap-4">
-          <div>
+        <div className="flex gap-4 overflow-x-auto no-scrollbar">
+          <div className="whitespace-nowrap">
             <span className="text-gray-500 mr-2">Mark</span>
             <PriceFlash value={ticker.markPrice} className="font-mono font-bold" />
           </div>
-          <div>
+          <div className="whitespace-nowrap">
             <span className="text-gray-500 mr-2">24h Change</span>
             <span className={ticker.change24h.startsWith("-") ? "text-red-500" : "text-green-500"}>
               {ticker.change24h}
             </span>
           </div>
-          <div>
+          <div className="hidden sm:block whitespace-nowrap">
             <span className="text-gray-500 mr-2">Vol</span>
             <span>{ticker.volume24h}</span>
           </div>
         </div>
         <div className="ml-auto flex items-center gap-4">
-          <div className="text-[10px] uppercase text-gray-600 font-bold">
+          <div className="text-[10px] uppercase text-gray-600 font-bold hidden sm:block">
             {status}
           </div>
           <ThemeToggle />
@@ -46,14 +46,14 @@ export default function BinanceFuturesPage() {
       </header>
 
       {/* Main Grid */}
-      <div className="flex-1 grid grid-cols-[1fr_300px_320px] overflow-hidden">
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[1fr_300px_320px] lg:overflow-hidden">
         {/* Chart */}
-        <div className="border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 relative">
+        <div className="h-[50vh] lg:h-auto border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 relative">
           <TradingViewWidget />
         </div>
 
         {/* OrderBook & Trades */}
-        <div className="flex flex-col border-r border-gray-200 dark:border-gray-800 h-full overflow-hidden">
+        <div className="flex flex-col h-[600px] lg:h-full border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 overflow-hidden">
           <OrderBook
             asks={orderbook.asks}
             bids={orderbook.bids}
@@ -77,7 +77,7 @@ export default function BinanceFuturesPage() {
         </div>
 
         {/* Order Ticket */}
-        <div className="h-full overflow-hidden">
+        <div className="h-auto lg:h-full overflow-hidden mb-8 lg:mb-0">
           <OrderTicket
             activeSymbol="BTCUSDT"
             limitPrice={limitPrice}
