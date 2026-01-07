@@ -24,9 +24,9 @@ export default function PriceFlash({ value, className = "", children }: PriceFla
 
             if (!isNaN(current) && !isNaN(previous)) {
                 if (current > previous) {
-                    setFlashClass("animate-flash-up text-green-500");
+                    setFlashClass("animate-flash-up text-green-600 dark:text-green-500");
                 } else if (current < previous) {
-                    setFlashClass("animate-flash-down text-red-500");
+                    setFlashClass("animate-flash-down text-red-600 dark:text-red-500");
                 }
 
                 if (timeoutRef.current) clearTimeout(timeoutRef.current);

@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, memo } from "react";
+import { useTheme } from "next-themes";
 
 function TradingViewWidget() {
     const container = useRef<HTMLDivElement>(null);
+
+    const { theme } = useTheme();
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -16,7 +19,7 @@ function TradingViewWidget() {
         "symbol": "BINANCE:BTCUSDT",
         "interval": "15",
         "timezone": "Etc/UTC",
-        "theme": "dark",
+        "theme": "${theme === 'light' ? 'light' : 'dark'}",
         "style": "1",
         "locale": "en",
         "enable_publishing": false,
@@ -28,7 +31,7 @@ function TradingViewWidget() {
             container.current.innerHTML = "";
             container.current.appendChild(script);
         }
-    }, []);
+    }, [theme]);
 
     return (
         <div className="tradingview-widget-container" ref={container} style={{ height: "100%", width: "100%" }}>
