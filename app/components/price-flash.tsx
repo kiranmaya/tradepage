@@ -41,7 +41,7 @@ export default function PriceFlash({ value, className = "", children }: PriceFla
     // Merge flash class with existing className, flash class takes precedence for color
     // A simple approach is appending.
     return (
-        <span className={`transition-colors duration-200 inline-block ${className} ${flashClass}`}>
+        <span className={`transition-colors duration-200 inline-block rounded-md ${className} ${flashClass}`}>
             {children || value}
         </span>
     );
