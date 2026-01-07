@@ -92,24 +92,24 @@ export function useBinanceMarketData(symbol: string = "btcusdt") {
         // Calculate totals for improved UI
         let bidTotal = 0;
         const bidsWithTotal = data.b.map((level: string[]) => {
-            const size = parseFloat(level[1]);
-            bidTotal += size;
-            return {
-                price: formatNumber(level[0]),
-                size: formatNumber(level[1]),
-                total: formatNumber(bidTotal)
-            };
+          const size = parseFloat(level[1]);
+          bidTotal += size;
+          return {
+            price: formatNumber(level[0]),
+            size: formatNumber(level[1]),
+            total: formatNumber(bidTotal)
+          };
         });
 
         let askTotal = 0;
         const asksWithTotal = data.a.map((level: string[]) => {
-            const size = parseFloat(level[1]);
-            askTotal += size;
-            return {
-                price: formatNumber(level[0]),
-                size: formatNumber(level[1]),
-                total: formatNumber(askTotal)
-            };
+          const size = parseFloat(level[1]);
+          askTotal += size;
+          return {
+            price: formatNumber(level[0]),
+            size: formatNumber(level[1]),
+            total: formatNumber(askTotal)
+          };
         });
 
         setOrderbook({ bids: bidsWithTotal, asks: asksWithTotal });
@@ -123,7 +123,7 @@ export function useBinanceMarketData(symbol: string = "btcusdt") {
           time: new Date(data.T).toLocaleTimeString("en-US", { hour12: false }),
           side: data.m ? "sell" : "buy" // m=true means maker (sell side initiated), wait... in Binance aggTrade: m=true means the buyer was the maker. So it's a SELL.
         };
-        setTrades(prev => [newTrade, ...prev].slice(0, 50));
+        setTrades(prev => [newTrade, ...prev].slice(0, 100));
       }
 
       // Mark Price

@@ -1,23 +1,71 @@
 "use client";
 
-// ... imports
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OrderBook from "./components/order-book";
 import OrderTicket from "./components/order-ticket";
 import { useBinanceMarketData } from "./hooks/use-binance-market";
-import TradingViewWidget from "./components/tradingview-widget";
 import PriceFlash from "./components/price-flash";
 import { ThemeToggle } from "./components/theme-toggle";
+import Watchlist from "./components/watchlist";
+import TradeFeed from "./components/trade-feed";
+import MultiChartGrid from "./components/multi-chart-grid";
+import MarketOverview from "./components/market-overview";
+import { TradingProvider, useTrading } from "./context/trading-context";
+import PositionsPanel from "./components/positions-panel";
 
-export default function BinanceFuturesPage() {
+// Inner component to access context
+function PageContent() {
   const { ticker, orderbook, trades, status } = useBinanceMarketData("btcusdt");
+  const { placeOrder, updatePnL, closePosition } = useTrading();
   const [limitPrice, setLimitPrice] = useState("");
+  const [showOverview, setShowOverview] = useState(false);
+
+  // Update PnL whenever mark price changes
+  useEffect(() => {
+    if (ticker.markPrice !== "--") {
+      updatePnL("BTCUSDT", parseFloat(ticker.markPrice.replace(/,/g, "")));
+    }
+  }, [ticker.markPrice, updatePnL]);
+
+  // Keyboard Shortcuts (Feature 10)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      const price = parseFloat(ticker.markPrice.replace(/,/g, "")) || 40000;
+
+      // Debug shortcut to test
+      if (e.key === 'b' && !e.shiftKey) { // Just 'b' for easier testing? No, keep it specific.
+        // Shift + B
+      }
+
+      if (e.code === 'KeyB' && e.shiftKey) {
+        // Shift + B = market buy
+        placeOrder("BTCUSDT", "buy", 0.1, price, "market");
+        // alert("Lightning Buy Executed!");
+      }
+      if (e.code === 'KeyS' && e.shiftKey) {
+        // Shift + S = market sell
+        placeOrder("BTCUSDT", "sell", 0.1, price, "market");
+        // alert("Lightning Sell Executed!");
+      }
+      if (e.code === 'Space') {
+        e.preventDefault(); // Prevent scrolling
+        // Close all (Simulated by closing BTC for demo)
+        closePosition("BTCUSDT");
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [placeOrder, closePosition, ticker.markPrice]);
 
   return (
-    <div className="flex min-h-screen lg:h-screen w-full bg-white dark:bg-black text-black dark:text-white lg:overflow-hidden flex-col">
+    <div className="flex min-h-screen lg:h-screen w-full bg-white dark:bg-black text-black dark:text-white lg:overflow-hidden flex-col font-sans">
+      {showOverview && <MarketOverview onClose={() => setShowOverview(false)} />}
+
       {/* Header / Ticker */}
       <header className="h-10 border-b border-gray-200 dark:border-gray-800 flex items-center px-4 gap-6 text-xs bg-gray-50 dark:bg-gray-900 shrink-0 sticky top-0 z-50 lg:static">
-        <div className="flex items-center gap-1.5 select-none">
+        <div className="flex items-center gap-1.5 select-none cursor-pointer" onClick={() => setShowOverview(true)}>
           <span className="font-black text-xl tracking-tighter text-black dark:text-white font-sans">AIZU</span>
           <span className="font-bold text-[10px] uppercase tracking-[0.2em] text-yellow-600 dark:text-yellow-500 bg-yellow-100 dark:bg-yellow-500/10 px-1.5 py-0.5 rounded-sm">FUTURES</span>
         </div>
@@ -38,18 +86,37 @@ export default function BinanceFuturesPage() {
           </div>
         </div>
         <div className="ml-auto flex items-center gap-4">
-          <div className="text-[10px] uppercase text-gray-600 font-bold hidden sm:block">
-            {status}
+          <button
+            onClick={() => setShowOverview(true)}
+            className="hidden sm:flex items-center gap-1 bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors text-[10px] font-bold uppercase text-gray-600 dark:text-gray-300"
+          >
+            Dashboard
+          </button>
+          <div className="flex items-center gap-1 text-[9px] bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200 dark:border-red-900/50">
+            <span className="font-bold animate-pulse">LIVE SIMULATION</span>
           </div>
           <ThemeToggle />
         </div>
       </header>
 
       {/* Main Grid */}
-      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[1fr_300px_320px] lg:overflow-hidden">
-        {/* Chart */}
-        <div className="h-[50vh] lg:h-auto border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 relative">
-          <TradingViewWidget />
+      <div className="flex-1 flex flex-col lg:grid lg:grid-cols-[280px_1fr_300px_320px] lg:overflow-hidden max-h-screen">
+
+        {/* Watchlist Sidebar */}
+        <div className="hidden lg:flex border-r border-gray-200 dark:border-gray-800 flex-col overflow-hidden h-full">
+          <Watchlist />
+        </div>
+
+        {/* Center: Chart + Positions */}
+        <div className="flex flex-col min-w-0 border-r border-gray-200 dark:border-gray-800 h-full overflow-hidden">
+          {/* Chart */}
+          <div className="flex-1 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 relative overflow-hidden min-h-0">
+            <MultiChartGrid />
+          </div>
+          {/* Positions Panel (Fixed 200px) */}
+          <div className="h-[200px] shrink-0 overflow-hidden bg-white dark:bg-gray-900 z-10 relative">
+            <PositionsPanel />
+          </div>
         </div>
 
         {/* OrderBook & Trades */}
@@ -61,21 +128,9 @@ export default function BinanceFuturesPage() {
             activeSymbol="BTCUSDT"
             onPriceSelect={setLimitPrice}
           />
-          {/* Simplified Recent Trades */}
-          <div className="h-1/3 border-t border-gray-200 dark:border-gray-800 p-2 overflow-hidden flex flex-col">
-            <div className="text-[10px] font-bold text-gray-500 mb-1 uppercase">Recent Trades</div>
-            <div className="flex-1 overflow-auto no-scrollbar space-y-0.5">
-              {trades.map((t, i) => (
-                <div key={i} className="grid grid-cols-3 text-[10px] font-mono opacity-80 hover:opacity-100">
-                  <PriceFlash
-                    value={t.price}
-                    className={t.side === 'buy' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}
-                  />
-                  <span className="text-right text-gray-600 dark:text-gray-400">{t.size}</span>
-                  <span className="text-right text-gray-500 dark:text-gray-600">{t.time}</span>
-                </div>
-              ))}
-            </div>
+          {/* Trade Feed with Whale Tracking */}
+          <div className="h-1/3 flex flex-col overflow-hidden min-h-0">
+            <TradeFeed trades={trades} />
           </div>
         </div>
 
@@ -85,9 +140,23 @@ export default function BinanceFuturesPage() {
             activeSymbol="BTCUSDT"
             limitPrice={limitPrice}
             setLimitPrice={setLimitPrice}
+            onPlaceOrder={placeOrder}
           />
         </div>
       </div>
+
+      {/* Toast for shortcuts (simplified) */}
+      <div className="fixed bottom-4 left-4 z-50 pointer-events-none">
+        {/* We can implement toast later explicitly if needed, alert is default for now */}
+      </div>
     </div>
+  );
+}
+
+export default function BinanceFuturesPage() {
+  return (
+    <TradingProvider>
+      <PageContent />
+    </TradingProvider>
   );
 }
