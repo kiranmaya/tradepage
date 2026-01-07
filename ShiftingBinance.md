@@ -4,7 +4,8 @@ This document contains the adapted code to migrate the futures trading page from
 
 ## 1. Market Data Hook (`use-binance-market.ts`)
 
-This hook connects to Binance Futures WebSocket streams to fetch real-time data.
+This hook connects to AIZU FUTURES
+ WebSocket streams to fetch real-time data.
 
 ```typescript
 "use client";
@@ -485,7 +486,8 @@ export default function BinanceFuturesPage() {
         <div className="flex h-screen w-full bg-black text-white overflow-hidden flex-col">
             {/* Header / Ticker */}
             <header className="h-10 border-b border-gray-800 flex items-center px-4 gap-6 text-xs bg-gray-900 shrink-0">
-                <div className="font-black text-yellow-500">BINANCE FUTURES</div>
+                <div className="font-black text-yellow-500">AIZU FUTURES
+</div>
                 <div className="flex gap-4">
                     <div>
                         <span className="text-gray-500 mr-2">Mark</span>

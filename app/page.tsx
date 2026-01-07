@@ -17,7 +17,10 @@ export default function BinanceFuturesPage() {
     <div className="flex h-screen w-full bg-white dark:bg-black text-black dark:text-white overflow-hidden flex-col">
       {/* Header / Ticker */}
       <header className="h-10 border-b border-gray-200 dark:border-gray-800 flex items-center px-4 gap-6 text-xs bg-gray-50 dark:bg-gray-900 shrink-0">
-        <div className="font-black text-yellow-500">BINANCE FUTURES</div>
+        <div className="flex items-center gap-1.5 select-none">
+          <span className="font-black text-xl tracking-tighter text-black dark:text-white font-sans">AIZU</span>
+          <span className="font-bold text-[10px] uppercase tracking-[0.2em] text-yellow-600 dark:text-yellow-500 bg-yellow-100 dark:bg-yellow-500/10 px-1.5 py-0.5 rounded-sm">FUTURES</span>
+        </div>
         <div className="flex gap-4">
           <div>
             <span className="text-gray-500 mr-2">Mark</span>
