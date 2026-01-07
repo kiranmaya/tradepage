@@ -61,7 +61,7 @@ export default function OrderBook({ asks, bids, markPrice, activeSymbol, onPrice
                                     onClick={() => onPriceSelect(l.price.replace(/,/g, ""))}
                                 >
                                     <PriceFlash value={l.price} className="text-red-500 dark:text-red-400" />
-                                    <span className="text-right text-gray-700 dark:text-gray-300">{l.size}</span>
+                                    <PriceFlash value={l.size} className="text-right w-full text-gray-700 dark:text-gray-300" />
                                     <span className="text-right text-gray-400 dark:text-gray-500 text-[9px]">{l.total}</span>
                                 </div>
                             ))}
@@ -84,7 +84,7 @@ export default function OrderBook({ asks, bids, markPrice, activeSymbol, onPrice
                                 onClick={() => onPriceSelect(l.price.replace(/,/g, ""))}
                             >
                                 <PriceFlash value={l.price} className="text-green-600 dark:text-green-400" />
-                                <span className="text-right text-gray-700 dark:text-gray-300">{l.size}</span>
+                                <PriceFlash value={l.size} className="text-right w-full text-gray-700 dark:text-gray-300" />
                                 <span className="text-right text-gray-400 dark:text-gray-500 text-[9px]">{l.total}</span>
                             </div>
                         ))}

@@ -1,11 +1,27 @@
 "use client";
 
 import { useTrading } from "../context/trading-context";
+import { useBinanceTickers } from "../hooks/use-binance-tickers";
 import { cn } from "@/lib/utils";
 import PriceFlash from "./price-flash";
 
 export default function PositionsPanel() {
     const { positions, balance, equity, closePosition } = useTrading();
+    const { tickers } = useBinanceTickers();
+
+    // Helper to get live data
+    const getPositionData = (p: typeof positions[0]) => {
+        const ticker = tickers.find(t => t.symbol === p.symbol);
+        const markPrice = ticker ? ticker.lastPrice : p.entryPrice; // Fallback to entry if loading
+
+        const diff = p.side === "long" ? markPrice - p.entryPrice : p.entryPrice - markPrice;
+        const pnl = diff * p.size;
+        const roe = (pnl / ((p.entryPrice * p.size) / p.leverage)) * 100;
+
+        return { markPrice, pnl, roe };
+    };
+
+    const totalPnL = positions.reduce((acc, p) => acc + getPositionData(p).pnl, 0);
 
     return (
         <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 flex flex-col h-full font-mono text-xs">
@@ -18,7 +34,7 @@ export default function PositionsPanel() {
                     </div>
                     <div>
                         <span className="text-gray-400 mr-1">Equity:</span>
-                        <span className="font-bold text-white">${equity.toFixed(2)}</span>
+                        <span className="font-bold text-white">${(balance + totalPnL).toFixed(2)}</span>
                     </div>
                 </div>
             </div>
@@ -43,41 +59,42 @@ export default function PositionsPanel() {
                                 </td>
                             </tr>
                         ) : (
-                            positions.map(p => (
-                                <tr key={p.symbol + p.side} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                    <td className="p-2 font-bold text-gray-900 dark:text-gray-200 flex items-center gap-1">
-                                        <span className={p.side === 'long' ? "text-green-500" : "text-red-500"}>
-                                            {p.side === 'long' ? "Long" : "Short"}
-                                        </span>
-                                        {p.symbol}
-                                        <span className="text-[9px] bg-gray-200 dark:bg-gray-700 px-1 rounded text-gray-500">{p.leverage}x</span>
-                                    </td>
-                                    <td className="p-2">{p.size}</td>
-                                    <td className="p-2">{p.entryPrice.toFixed(2)}</td>
-                                    <td className="p-2 text-gray-500">
-                                        {/* We don't have current price here easily in map, passed from parent? 
-                                       or calculate PnL in hook. unRealizedPnL is in object.
-                                   */}
-                                        --
-                                    </td>
-                                    <td className="p-2">
-                                        <PriceFlash
-                                            value={p.unrealizedPnL.toFixed(2)}
-                                            className={cn("font-bold", p.unrealizedPnL >= 0 ? "text-green-500" : "text-red-500")}
-                                        >
-                                            {p.unrealizedPnL >= 0 ? "+" : ""}{p.unrealizedPnL.toFixed(2)}
-                                        </PriceFlash>
-                                    </td>
-                                    <td className="p-2 text-right">
-                                        <button
-                                            onClick={() => closePosition(p.symbol)}
-                                            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-[10px]"
-                                        >
-                                            Close
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                            positions.map(p => {
+                                const { markPrice, pnl, roe } = getPositionData(p);
+                                return (
+                                    <tr key={p.symbol + p.side} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        <td className="p-2 font-bold text-gray-900 dark:text-gray-200 flex items-center gap-1">
+                                            <span className={p.side === 'long' ? "text-green-500" : "text-red-500"}>
+                                                {p.side === 'long' ? "Long" : "Short"}
+                                            </span>
+                                            {p.symbol}
+                                            <span className="text-[9px] bg-gray-200 dark:bg-gray-700 px-1 rounded text-gray-500">{p.leverage}x</span>
+                                        </td>
+                                        <td className="p-2">{p.size}</td>
+                                        <td className="p-2">{p.entryPrice.toFixed(2)}</td>
+                                        <td className="p-2 text-gray-500">
+                                            {tickers.length > 0 ? markPrice.toFixed(2) : <span className="animate-pulse">Loading...</span>}
+                                        </td>
+                                        <td className="p-2">
+                                            <PriceFlash
+                                                value={pnl.toFixed(2)}
+                                                className={cn("font-bold", pnl >= 0 ? "text-green-500" : "text-red-500")}
+                                            >
+                                                <span className="mr-1">{pnl >= 0 ? "+" : ""}{pnl.toFixed(2)}</span>
+                                                <span className="text-[10px] opacity-75">({roe.toFixed(2)}%)</span>
+                                            </PriceFlash>
+                                        </td>
+                                        <td className="p-2 text-right">
+                                            <button
+                                                onClick={() => closePosition(p.symbol)}
+                                                className="px-2 py-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded text-[10px]"
+                                            >
+                                                Close
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                     {positions.length > 0 && (
@@ -89,12 +106,12 @@ export default function PositionsPanel() {
                                 <td className="p-2">--</td>
                                 <td className="p-2">
                                     <PriceFlash
-                                        value={positions.reduce((acc, p) => acc + p.unrealizedPnL, 0).toFixed(2)}
+                                        value={totalPnL.toFixed(2)}
                                         className={cn(
-                                            positions.reduce((acc, p) => acc + p.unrealizedPnL, 0) >= 0 ? "text-green-500" : "text-red-500"
+                                            totalPnL >= 0 ? "text-green-500" : "text-red-500"
                                         )}
                                     >
-                                        ${positions.reduce((acc, p) => acc + p.unrealizedPnL, 0).toFixed(2)}
+                                        ${totalPnL.toFixed(2)}
                                     </PriceFlash>
                                 </td>
                                 <td></td>

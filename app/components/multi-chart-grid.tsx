@@ -1,14 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TradingViewWidget from "./tradingview-widget";
 import { Grid2X2, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function MultiChartGrid() {
+export default function MultiChartGrid({ activeSymbol = "BTCUSDT" }: { activeSymbol?: string }) {
     const [layout, setLayout] = useState<"single" | "quad">("single");
-    // Hardcoded symbols for now or allow user selection later
-    const [symbols, setSymbols] = useState(["BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:SOLUSDT", "BINANCE:DOGEUSDT"]);
+    // Initialize with activeSymbol
+    const [symbols, setSymbols] = useState([`BINANCE:${activeSymbol}`, "BINANCE:ETHUSDT", "BINANCE:SOLUSDT", "BINANCE:DOGEUSDT"]);
+
+    // Update first symbol when activeSymbol changes
+    useEffect(() => {
+        setSymbols(prev => {
+            const newSymbol = `BINANCE:${activeSymbol}`;
+            if (prev[0] === newSymbol) return prev;
+            const newSymbols = [...prev];
+            newSymbols[0] = newSymbol;
+            return newSymbols;
+        });
+    }, [activeSymbol]);
 
     return (
         <div className="w-full h-full flex flex-col relative group">
