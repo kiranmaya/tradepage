@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import LocalTradingViewWidget from "@/components/local-tradingview-widget";
+import ThemeableTradingViewWidget from "@/components/themeable-tradingview-widget";
 import clsx from "clsx";
 
 interface ThemeConfig {
@@ -160,12 +160,12 @@ export default function TvColorsPage() {
                             </div>
 
                             <div className="flex-1 relative">
-                                <LocalTradingViewWidget
+                                <ThemeableTradingViewWidget
                                     theme={activeTheme.theme}
                                     backgroundColor={activeTheme.backgroundColor}
                                     toolbar_bg={activeTheme.toolbar_bg}
                                     autosize={true}
-                                    customCssUrl={activeTheme.cssFile ? `../tv-themes/${activeTheme.cssFile}` : undefined}
+                                    customCssUrl={activeTheme.cssFile && typeof window !== 'undefined' ? `${window.location.origin}/tv-themes/${activeTheme.cssFile}` : undefined}
                                 />
                             </div>
                         </div>
