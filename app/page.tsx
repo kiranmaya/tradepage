@@ -67,7 +67,10 @@ export default function BinanceFuturesPage() {
             <div className="flex-1 overflow-auto no-scrollbar space-y-0.5">
               {trades.map((t, i) => (
                 <div key={i} className="grid grid-cols-3 text-[10px] font-mono opacity-80 hover:opacity-100">
-                  <span className={t.side === 'buy' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}>{t.price}</span>
+                  <PriceFlash
+                    value={t.price}
+                    className={t.side === 'buy' ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'}
+                  />
                   <span className="text-right text-gray-600 dark:text-gray-400">{t.size}</span>
                   <span className="text-right text-gray-500 dark:text-gray-600">{t.time}</span>
                 </div>
