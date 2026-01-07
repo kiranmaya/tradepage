@@ -10,6 +10,7 @@ interface ThemeableTradingViewWidgetProps {
     candleUpColor?: string;
     candleDownColor?: string;
     autosize?: boolean;
+    customCssUrl?: string;
 }
 
 function ThemeableTradingViewWidget({
