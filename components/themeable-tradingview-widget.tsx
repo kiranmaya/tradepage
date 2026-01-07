@@ -21,6 +21,7 @@ function ThemeableTradingViewWidget({
     candleUpColor,
     candleDownColor,
     autosize = true,
+    customCssUrl,
 }: ThemeableTradingViewWidgetProps) {
     const container = useRef<HTMLDivElement>(null);
 
@@ -61,6 +62,7 @@ function ThemeableTradingViewWidget({
 
         if (backgroundColor) widgetConfig.backgroundColor = backgroundColor;
         if (toolbar_bg) widgetConfig.toolbar_bg = toolbar_bg;
+        if (customCssUrl) widgetConfig.custom_css_url = customCssUrl;
 
         // Note: The 'overrides' property works for the charting library, but for the widget 
         // strictly speaking, only specific properties are exposed. 
@@ -79,7 +81,7 @@ function ThemeableTradingViewWidget({
             container.current.innerHTML = "";
             container.current.appendChild(script);
         }
-    }, [theme, backgroundColor, toolbar_bg, gridColor, candleUpColor, candleDownColor, autosize]);
+    }, [theme, backgroundColor, toolbar_bg, gridColor, candleUpColor, candleDownColor, autosize, customCssUrl]);
 
     return (
         <div
